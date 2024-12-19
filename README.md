@@ -16,6 +16,25 @@ At the same time, CKB.FI will record the Twitter content of each memecoin, highl
 
 Through the game of memecoin, valuable content in the social network will be permanently stored on the blockchain.
 
+### Key Features:
+
+1. **Token Creation from X Content**: Users can mint tokens based on trending topics or memes from X, making the process seamless and natural.
+2. **Cultural Preservation**: CKBFI records the X content associated with each memecoin, ensuring the origin and cultural relevance of the token are preserved. Once a token is launched, the associated X content is permanently stored on **Arweave**, a decentralized storage solution, ensuring it remains immutable and accessible.
+3. **Memecoin Gamification**: By gamifying token creation and trading, CKBFI encourages the preservation of valuable social network content on the blockchain.
+
+
+
+### **Exponential Bonding Curve**
+
+![image](https://github.com/ckbfi/ckbfi-contract/blob/main/asset/image.png?raw=true)
+
+The pricing mechanism in the Ckbfi-contract is based on an **exponential curve**. This means:
+
+- Early buyers benefit the most, as the price starts low and increases gradually.
+- As more tokens are issued, the price rises exponentially, rewarding early participants while maintaining a fair and predictable price increase for later buyers.
+
+This design ensures that early adopters are incentivized while providing a sustainable token economy for all participants.
+
 
 
 ### Technical Implementation
@@ -41,6 +60,8 @@ The order cell is used to record the user's transaction intent and ensure that i
 #### AMM Cell
 
 The AMM cell is responsible for all the verification logic related to AMM
+
+
 
 ## License
 
