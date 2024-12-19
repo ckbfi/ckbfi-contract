@@ -1,7 +1,7 @@
 # **Ckbfi-contract — A bonding curve contract implemented based on CKB contracts**
 
 - A bonding curve is a mathematical concept that defines the relationship between the price and supply of an asset.
-- Bonding curve contracts are [smart contracts](https://www.coinbase.com/learn/crypto-basics/what-is-a-smart-contract) that aim to create a market for [tokens](https://www.coinbase.com/learn/crypto-basics/what-is-a-token) independent of [cryptocurrency](https://www.coinbase.com/learn/crypto-basics/what-is-cryptocurrency) exchanges.
+- Bonding curve contracts are ckb smart contracts that aim to create a market for tokens independent of cryptocurrency exchanges.
 - The value of each token tends to increase as the number of tokens issued increases, according to the bonding curve.
 
 
