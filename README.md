@@ -20,7 +20,7 @@ Through the game of memecoin, valuable content in the social network will be per
 
 ### Technical Implementation
 
-![image-20241219170908341]()
+![image-20241219170908341](https://github.com/ckbfi/ckbfi-contract/blob/main/asset/image-20241219170908341.png?raw=true)
 
 On CKBFI, when users engage in swap transactions, it primarily involves the following three steps:
 
