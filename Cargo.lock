@@ -105,6 +105,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "bondings-curve-contract"
+version = "0.1.0"
+dependencies = [
+ "ckb-std",
+]
+
+[[package]]
 name = "buddy-alloc"
 version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
