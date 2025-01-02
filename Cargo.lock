@@ -188,7 +188,7 @@ dependencies = [
  "ckb-crypto",
  "ckb-dao-utils",
  "ckb-error",
- "ckb-hash",
+ "ckb-hash 0.119.0",
  "ckb-jsonrpc-types",
  "ckb-logger",
  "ckb-pow",
@@ -308,7 +308,7 @@ dependencies = [
  "cfg-if",
  "ckb-error",
  "ckb-fixed-hash",
- "ckb-hash",
+ "ckb-hash 0.119.0",
  "ckb-occupied-capacity",
  "molecule",
  "numext-fixed-uint",
@@ -319,6 +319,16 @@ name = "ckb-hash"
 version = "0.119.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "99ba7c72f86f239b3e0154f51d6cd5d0d83bbaa8775fdc7b6bcac459ae24b6fd"
+dependencies = [
+ "blake2b-ref",
+ "blake2b-rs",
+]
+
+[[package]]
+name = "ckb-hash"
+version = "0.120.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2df8fb6acacdb056b69ec1071491323ab46e90bd6fec3dbc8964f44366f03866"
 dependencies = [
  "blake2b-ref",
  "blake2b-rs",
@@ -404,7 +414,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "40266a0bbf46eb4d92fc7137c93b22b8518d7a5a8991d6b52931b1fc43cb9863"
 dependencies = [
  "byteorder",
- "ckb-hash",
+ "ckb-hash 0.119.0",
  "ckb-types",
  "eaglesong",
  "log",
@@ -445,7 +455,7 @@ dependencies = [
  "byteorder",
  "ckb-chain-spec",
  "ckb-error",
- "ckb-hash",
+ "ckb-hash 0.119.0",
  "ckb-logger",
  "ckb-traits",
  "ckb-types",
@@ -497,7 +507,7 @@ dependencies = [
  "ckb-chain-spec",
  "ckb-crypto",
  "ckb-error",
- "ckb-hash",
+ "ckb-hash 0.119.0",
  "ckb-jsonrpc-types",
  "ckb-mock-tx-types",
  "ckb-resource",
@@ -534,7 +544,7 @@ dependencies = [
  "ckb-error",
  "ckb-fixed-hash",
  "ckb-gen-types",
- "ckb-hash",
+ "ckb-hash 0.119.0",
  "ckb-merkle-mountain-range",
  "ckb-occupied-capacity",
  "ckb-rational",
@@ -1694,6 +1704,14 @@ name = "unicode-width"
 version = "0.1.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0336d538f7abc86d282a4189614dfaa90810dfc2c6f6427eaf88e16311dd225d"
+
+[[package]]
+name = "unique_liquidity_manager"
+version = "0.1.0"
+dependencies = [
+ "ckb-hash 0.120.0",
+ "ckb-std",
+]
 
 [[package]]
 name = "version_check"

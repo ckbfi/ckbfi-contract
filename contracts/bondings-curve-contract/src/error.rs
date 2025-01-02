@@ -16,7 +16,7 @@ pub enum Error {
     UserPayXudtNotEnough,
     // 不允许单独减少pool ckb的数量
     OutputCkbInvalid,
-    // 需要撮合权限
+    // 需要type id cell
     PermissionDenied,
     // 输入需要包含pool xudt
     InputValidationFailure,

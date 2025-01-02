@@ -25,11 +25,11 @@ fn xudt_code_hash() -> Byte32 {
 }
 
 
-// 0xe733c8fec56bf7edb1cad4efa9e38bb5fd01f36a37b68eb212fd5176ff803dfe
-const MATCH_LOCK_HASH: [u8; 32] = [
-    0xe7, 0x33, 0xc8, 0xfe, 0xc5, 0x6b, 0xf7, 0xed, 0xb1, 0xca, 0xd4, 0xef, 0xa9, 0xe3, 0x8b, 0xb5,
-    0xfd, 0x01, 0xf3, 0x6a, 0x37, 0xb6, 0x8e, 0xb2, 0x12, 0xfd, 0x51, 0x76, 0xff, 0x80, 0x3d, 0xfe,
-];
+// // 0xe733c8fec56bf7edb1cad4efa9e38bb5fd01f36a37b68eb212fd5176ff803dfe
+// const MATCH_LOCK_HASH: [u8; 32] = [
+//     0xe7, 0x33, 0xc8, 0xfe, 0xc5, 0x6b, 0xf7, 0xed, 0xb1, 0xca, 0xd4, 0xef, 0xa9, 0xe3, 0x8b, 0xb5,
+//     0xfd, 0x01, 0xf3, 0x6a, 0x37, 0xb6, 0x8e, 0xb2, 0x12, 0xfd, 0x51, 0x76, 0xff, 0x80, 0x3d, 0xfe,
+// ];
 
 
 fn ckb_args() -> Bytes {
@@ -108,19 +108,15 @@ fn collect_xudt_amount_for_user(xudt_args: &Bytes,user_lock_hash :&Bytes) -> Res
 }
 
 
-fn check_user_or_match_lock(user_lock_hash: &Bytes) -> Result<(bool,bool), Error> {
-    let mut is_match_lock = false;
+fn check_user_or_match_lock(user_lock_hash: &Bytes) -> Result<bool, Error> {
     let mut is_user_lock = false;
     for (i, _) in QueryIter::new(load_cell, Source::Input).enumerate() {
         let lock_hash = load_cell_lock_hash(i, Source::Input)?;
         if user_lock_hash[..] == lock_hash[..] {
             is_user_lock = true;
         }
-        if MATCH_LOCK_HASH[..] == lock_hash[..] {
-            is_match_lock = true;
-        }
     }
-    Ok((is_user_lock,is_match_lock))
+    Ok(is_user_lock)
 }
 pub fn main() -> Result<(), Error> {
     let script = load_script()?;
@@ -129,12 +125,9 @@ pub fn main() -> Result<(), Error> {
 
     //1.统计滑点后的期望数量
     let desired_amount_after_slip = desired_amount - desired_amount * u128::from(slip_point) / 10000;
-    let (is_user_lock,is_match_lock,) = check_user_or_match_lock(&user_lock_hash)?;
+    let is_user_lock = check_user_or_match_lock(&user_lock_hash)?;
     if is_user_lock {
         return Ok(());
-    }
-    if !is_match_lock {
-        return Err(Error::NotADMIN);
     }
     
     let output_xudt_amount_to_user = collect_xudt_amount_for_user(&xudt_args,&user_lock_hash)?;

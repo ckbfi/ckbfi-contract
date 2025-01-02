@@ -9,7 +9,7 @@ use core::{u128};
 use ckb_std::{
     ckb_constants::Source,
     ckb_types::{bytes::Bytes, packed::{Byte32, Script}, prelude::*},
-    high_level::{load_cell, load_cell_capacity, load_cell_data, load_cell_lock_hash, load_script,QueryIter},
+    high_level::{load_cell, load_cell_capacity, load_cell_data, load_cell_lock_hash, load_cell_type, load_script, QueryIter},
 };
 
 use crate::error::Error;
@@ -34,7 +34,7 @@ fn utxoswap_code_hash() -> Byte32 {
 
 
 const UDT_LEN: usize = 16;
-const ADMIN_LOCK_HASH_LEN: usize = 32;
+const TYPE_ID_LEN: usize = 32;
 // const XUDT_ARGS_LEN: usize = 32;
 
 const TOTAL_XUDT_SUPPLY: u128 = 731_000_000*100_000_000;
@@ -154,12 +154,18 @@ fn collect_ckb_amount(args: &Bytes,script :&Script,source:Source) -> Result<u64,
 }
 
 
-fn check_match_input(admin_lock_hash: [u8;32]) -> Result<bool, Error> {
+fn check_unique_cell_input(type_id: [u8;32]) -> Result<bool, Error> {
     
-    for (i, _) in QueryIter::new(load_cell, Source::Input).enumerate() {
-        let lock_hash = load_cell_lock_hash(i, Source::Input)?;
+    for (i, cell) in QueryIter::new(load_cell, Source::Input).enumerate() {
+        let cell_type_lock_opt = cell.type_().to_opt();
+        if cell_type_lock_opt.is_none() {
+            // //debug!("cell_type_hash_opt is none");
+            continue;
+        }
+        let type_lock = cell_type_lock_opt.unwrap();
+        let type_lock_args = type_lock.args().raw_data();
         
-        if admin_lock_hash == lock_hash {
+        if type_id[..] == type_lock_args[..] {
             return Ok(true);
         }
     }
@@ -171,24 +177,24 @@ fn parse_args(args: &Bytes) -> Result<(Bytes, [u8; 32]), Error> {
     if args.len() < 64 {
         return Err(Error::LengthNotEnough);
     }
-    let xudt_args = Bytes::from(args[..ADMIN_LOCK_HASH_LEN].to_vec());
-    let admin_lock_hash = args[ADMIN_LOCK_HASH_LEN..].to_vec();
+    let xudt_args = Bytes::from(args[..TYPE_ID_LEN].to_vec());
+    let type_id = args[TYPE_ID_LEN..].to_vec();
     
-    let mut admin_lock_hash_buf = [0u8; 32];
-    admin_lock_hash_buf.copy_from_slice(&admin_lock_hash);
-    Ok((xudt_args, admin_lock_hash_buf))
+    let mut type_id_buf = [0u8; 32];
+    type_id_buf.copy_from_slice(&type_id);
+    Ok((xudt_args, type_id_buf))
 }
 
 pub fn main() -> Result<(), Error> {
     let script = load_script()?;
 
     let args: Bytes = script.args().unpack();
-    let (xudt_args, admin_lock_hash) = match parse_args(&args) {
+    let (xudt_args, type_id) = match parse_args(&args) {
         Ok(result) => result,
         Err(e) => return Err(e),
     };
     
-    if !check_match_input(admin_lock_hash)? {
+    if !check_unique_cell_input(type_id)? {
         return Err(Error::PermissionDenied);
     }
     if check_launch(&xudt_args)? {

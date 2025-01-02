@@ -1,0 +1,12 @@
+[package]
+name = "unique_liquidity_manager"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+ckb-std = "0.16.3"
+ckb-hash = "0.120.0"
+
+[features]
+native-simulator = ["ckb-std/native-simulator"]
+
