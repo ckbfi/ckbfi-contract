@@ -129,8 +129,8 @@ fn collect_bondings_curve_xudt_amount(type_id: &Bytes,xudt_args: &Bytes,source:S
             let amount = u128::from_le_bytes(buf);
             let cell = load_cell(i, source)?;
             let lock_code_hash = cell.lock().code_hash();
-            
-            if lock_code_hash != bondings_curve_code_hash() || type_id[..] != cell.lock().args().raw_data()[..32] {
+            // args: xudt_args | type_id
+            if lock_code_hash != bondings_curve_code_hash() || type_id[..] != cell.lock().args().raw_data()[32..] {
                 // //debug!("cell_lock_hash: {}, script.code_hash(): {}", cell_lock_hash, script.code_hash());
                 // //debug!("args: {}, cell.lock().args().raw_data(): {}", hex_string(args.as_ref()), hex_string(cell.lock().args().raw_data().as_ref()));
                 continue;
@@ -159,8 +159,8 @@ fn collect_bondings_curve_ckb_amount(type_id: &Bytes,source:Source) -> Result<u6
         // //debug!("{} cell: {}", source, cell);
         let lock_code_hash = cell.lock().code_hash();
         let type_hash = cell.type_();
-        
-        if lock_code_hash != bondings_curve_code_hash() || type_id[..] != cell.lock().args().raw_data()[..32]  {
+        // args: xudt_args | type_id
+        if lock_code_hash != bondings_curve_code_hash() || type_id[..] != cell.lock().args().raw_data()[32..]  {
             // //debug!("{} lock_hash: {}, script.code_hash(): {}",source,lock_hash, script.code_hash());
             // //debug!("{} args: {}, cell.lock().args().raw_data(): {}",source, hex_string(args.as_ref()), hex_string(cell.lock().args().raw_data().as_ref()));
             continue;
