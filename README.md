@@ -59,7 +59,10 @@ The order cell is used to record the user's transaction intent and ensure that i
 
 #### AMM Cell
 
-The AMM cell is responsible for all the verification logic related to AMM
+The Automated Market Maker (AMM) cell is responsible for all the verification logic related to AMM. The AMM cell is further divided into two types: Bonding Curve Cell and Unique Cell.
+
+Bonding Curve Cell: This cell manages the buying, selling, and pricing of tokens. It implements the bonding curve logic, ensuring that the price of the token adjusts according to the supply.
+Unique Cell: This cell manages the liquidity aspect of the AMM. It ensures that there is sufficient liquidity for token swaps.
 
 
 
