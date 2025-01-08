@@ -182,8 +182,8 @@ fn collect_bondings_curve_ckb_amount(type_id: &Bytes,source:Source) -> Result<u6
 
 pub fn main() -> Result<(), Error> {
     // Load the type script of the current cell
-    let type_id = load_id_from_args(0)?;
-    let xudt_args = load_xudt_args_from_args(32)?;
+    let type_id = load_id_from_args(32)?;
+    let xudt_args = load_xudt_args_from_args(0)?;
     let type_id_bytes = Bytes::from(type_id.to_vec());
     let xudt_args_bytes = Bytes::from(xudt_args.to_vec());
     validate_type_id(type_id)?;
