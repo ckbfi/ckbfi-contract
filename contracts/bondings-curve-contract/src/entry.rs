@@ -32,6 +32,14 @@ fn utxoswap_code_hash() -> Byte32 {
     ]).expect("constant initialization")
 }
 
+//mainnet 0x80c9e0e4516b4d6e0757f7ff7ac620f3cea91bcd8d4d62150355c8c009568ed7
+fn unique_liquidity_manager_code_hash() -> Byte32 {
+    Byte32::from_slice(&[
+        0x80, 0xc9, 0xe0, 0xe4, 0x51, 0x6b, 0x4d, 0x6e, 0x07, 0x57, 0xf7, 0xff, 0x7a, 0xc6, 0x20, 0xf3,
+        0xce, 0xa9, 0x1b, 0xcd, 0x8d, 0x4d, 0x62, 0x15, 0x03, 0x55, 0xc8, 0xc0, 0x09, 0x56, 0x8e, 0xd7,
+    ]).expect("constant initialization")
+}
+
 
 const UDT_LEN: usize = 16;
 const TYPE_ID_LEN: usize = 32;
@@ -165,7 +173,7 @@ fn check_unique_cell_input(type_id: [u8;32]) -> Result<bool, Error> {
         let type_lock = cell_type_lock_opt.unwrap();
         let type_lock_args = type_lock.args().raw_data();
         
-        if type_id[..] == type_lock_args[..] {
+        if type_id[..] == type_lock_args[..] && unique_liquidity_manager_code_hash() == type_lock.code_hash() {
             return Ok(true);
         }
     }
