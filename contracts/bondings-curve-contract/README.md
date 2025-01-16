@@ -1,7 +1,158 @@
 # bondings-curve-contract
 
-TODO: Write this readme
+## **1. 项目背景**
+该合约是一个运行在 Nervos CKB 区块链上的智能合约，用于管理基于 UDT（用户定义代币）的流动性池。它支持以下功能：
+- 流动性管理（如代币的买入和卖出）
+- 启动模式（Launch Mode）和普通交易模式
+- 唯一流动性管理器验证
+- 动态价格计算机制
 
-*This contract was bootstrapped with [ckb-script-templates].*
+合约设计中使用了 Nervos CKB 的高性能和灵活性，结合了 xUDT（扩展 UDT）和 CKB 资产的动态定价机制。
 
-[ckb-script-templates]: https://github.com/cryptape/ckb-script-templates
+---
+
+## **2. 功能模块**
+### **2.1 核心功能**
+1. **价格计算**
+   - 根据池中当前的 xUDT 数量，动态计算买入和卖出的价格。
+   - 使用数学公式模拟市场的供需关系，确保价格随着池内资产变化而变化。
+
+2. **交易验证**
+   - 验证用户在交易中是否支付了足够的 CKB 或 xUDT。
+   - 确保交易符合价格公式和合约规则。
+
+3. **发射模式（Launch Mode）**
+   - 当流动性池中的 xUDT 和 CKB 达到预设的启动条件时，允许将资产完全解锁到管理员账户。
+
+4. **唯一流动性管理器验证**
+   - 确保每笔交易都引入了唯一的流动性管理器 Cell，阻止伪造流动攻击。
+
+5. **资产统计**
+   - 统计输入和输出中 xUDT 和 CKB 的数量，用于交易价格验证。
+
+6. **安全检查**
+   - 检查交易是否符合合约规则，如：
+     - 防止非法提取 CKB。
+     - 确保池内资产的变化符合预期。
+
+---
+
+## **3. 设计细节**
+
+### **3.1 数据结构**
+- **xUDT 数据结构**
+  - 每个 xUDT Cell 的数据部分为 16 字节，表示当前 Cell 中的 xUDT 数量（小端序）。
+
+- **合约参数（args）**
+  - 合约的 `args` 长度为 64 字节，分为两部分：
+    1. 前 32 字节：xUDT 的 `args`，用于标识特定的 xUDT。
+    2. 后 32 字节：唯一流动性管理器的 `type_id`。
+
+- **常量**
+  - `TOTAL_XUDT_SUPPLY`: xUDT 的总供应量，设定为 7.31 亿。
+  - `LAUNCH_CKB_AMOUNT`: 发射模式的最低 CKB 需求，设定为 10 万。
+  - `LAUNCH_XUDT_AMOUNT`: 发射模式的最低 xUDT 需求，设定为 2 亿。
+
+---
+
+### **3.2 核心算法**
+#### **3.2.1 价格计算公式**
+价格计算基于以下公式，用于动态调整 xUDT 和 CKB 的兑换比例：
+- **买入价格计算**：
+  $$
+  \text{price} = \text{sum2} - \text{sum1}
+  $$
+  其中：
+  $$
+  \text{sum1} = \frac{(current\_xudt + 1000 - 1) \cdot (current\_xudt + 1000) \cdot (2 \cdot (current\_xudt + 1000) - 1)}{dg}
+  $$
+  $$
+  \text{sum2} = \frac{(current\_xudt + 1000 + xudt\_amount - 1) \cdot (current\_xudt + 1000 + xudt\_amount) \cdot (2 \cdot (current\_xudt + 1000) + 2 \cdot xudt\_amount - 1)}{dg}
+  $$
+
+- **卖出价格计算**：
+  类似于买入价格，但 `current_xudt` 减去卖出的 `xudt_amount`。
+
+#### **3.2.2 发射模式检查**
+通过检查输出中的 xUDT 和 CKB 数量是否达到预设值（`LAUNCH_XUDT_AMOUNT` 和 `LAUNCH_CKB_AMOUNT`），确定是否进入发射模式。
+
+#### **3.2.3 唯一流动性管理器验证**
+遍历输入中的所有 Cell，检查是否存在符合以下条件的 Cell：
+- 类型脚本的 `code_hash` 与 `unique_liquidity_manager_code_hash` 匹配。
+- 类型脚本的 `args` 包含 `type_id`。
+
+#### **3.2.4 资产统计**
+- 遍历输入和输出的所有 Cell，统计符合以下条件的 xUDT 和 CKB 数量：
+  - Cell 的锁定脚本与当前合约的锁定脚本匹配。
+  - xUDT 的类型脚本与指定的 `xUDT_code_hash` 和 `args` 匹配。
+
+#### **3.2.5 交易验证逻辑**
+1. **买入逻辑**
+   - 输出的 xUDT 数量小于输入的 xUDT 数量。
+   - 计算用户需要支付的 CKB，并验证用户是否支付了足够的 CKB。
+
+2. **卖出逻辑**
+   - 输出的 xUDT 数量大于输入的 xUDT 数量。
+   - 计算用户从池中提取的 CKB，并验证其是否符合价格公式。
+
+3. **普通模式**
+   - 输入和输出的 xUDT 数量相等，且输入和输出的 CKB 数量相等。
+
+---
+
+### **3.3 错误处理**
+- **错误类型**
+  - `Error::LengthNotEnough`: 参数长度不足。
+  - `Error::PermissionDenied`: 唯一流动性管理器验证失败。
+  - `Error::InputValidationFailure`: 输入验证失败。
+  - `Error::OutPutValidationFailure`: 输出验证失败。
+  - `Error::UserPayCkbNotEnough`: 用户支付的 CKB 不足。
+  - `Error::UserPayXudtNotEnough`: 用户支付的 xUDT 不足。
+  - `Error::UnableRemove`: 非法移除池资产。
+
+---
+
+## **4. 流程设计**
+
+### **4.1 合约执行流程**
+1. **加载脚本和参数**
+   - 解析 `args`，提取 `xUDT_args` 和 `type_id`。
+
+2. **唯一流动性管理器验证**
+   - 检查输入中是否包含唯一流动性管理器 Cell。
+
+3. **发射模式检查**
+   - 检查输出中的 xUDT 和 CKB 是否达到发射条件。
+
+4. **资产统计**
+   - 统计输入和输出中的 xUDT 和 CKB 数量。
+
+5. **交易逻辑验证**
+   - 根据输入和输出的资产数量，判断交易类型（买入、卖出或普通模式）。
+   - 验证交易是否符合价格公式和合约规则。
+
+6. **返回结果**
+   - 若交易合法，返回 `Ok(())`。
+   - 若交易不合法，返回对应的错误类型。
+
+---
+
+## **5. 安全性设计**
+1. **防止资产盗取**
+   - 严格验证输入和输出的资产变化，防止非法提取池内资产。
+2. **唯一性验证**
+   - 确保每笔交易都引入唯一的流动性管理器 Cell。
+3. **动态价格调整**
+   - 使用数学公式动态调整价格，防止用户恶意操控价格。
+
+
+
+---
+
+## **6. 未来扩展**
+1. 支持多种类型的流动性池。
+2. 增加手续费机制，实现池的持续运营。
+3. 引入更多的安全检查，防止复杂攻击。
+
+
+

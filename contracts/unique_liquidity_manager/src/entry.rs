@@ -19,18 +19,32 @@ use crate::error::Error;
 
 
 // mainnet 0x50bd8d6680b8b9cf98b73f3c08faf8b2a21914311954118ad6609be6e78a1b95
+// fn xudt_code_hash() -> Byte32 {
+//     Byte32::from_slice(&[
+//         0x50, 0xbd, 0x8d, 0x66, 0x80, 0xb8, 0xb9, 0xcf, 0x98, 0xb7, 0x3f, 0x3c, 0x08, 0xfa, 0xf8, 0xb2,
+//         0xa2, 0x19, 0x14, 0x31, 0x19, 0x54, 0x11, 0x8a, 0xd6, 0x60, 0x9b, 0xe6, 0xe7, 0x8a, 0x1b, 0x95,
+//     ]).expect("constant initialization")
+// }
+
+// testnet 25c29dc317811a6f6f3985a7a9ebc4838bd388d19d0feeecf0bcd60f6c0975bb" to Byte32
 fn xudt_code_hash() -> Byte32 {
     Byte32::from_slice(&[
-        0x50, 0xbd, 0x8d, 0x66, 0x80, 0xb8, 0xb9, 0xcf, 0x98, 0xb7, 0x3f, 0x3c, 0x08, 0xfa, 0xf8, 0xb2,
-        0xa2, 0x19, 0x14, 0x31, 0x19, 0x54, 0x11, 0x8a, 0xd6, 0x60, 0x9b, 0xe6, 0xe7, 0x8a, 0x1b, 0x95,
+        0x25, 0xc2, 0x9d, 0xc3, 0x17, 0x81, 0x1a, 0x6f, 0x6f, 0x39, 0x85, 0xa7, 0xa9, 0xeb, 0xc4, 0x83, 0x8b, 0xd3, 0x88, 0xd1, 0x9d, 0x0f, 0xee, 0xec, 0xf0, 0xbc, 0xd6, 0x0f, 0x6c, 0x09, 0x75, 0xbb,
     ]).expect("constant initialization")
 }
 
 // mainnet 0xdf00d4dd710944886c0d84d79c7a3de3940c32b7d0dad464b2052eb0ba6e4914
+// fn bondings_curve_code_hash() -> Byte32 {
+//     Byte32::from_slice(&[
+//         0xdf, 0x00, 0xd4, 0xdd, 0x71, 0x09, 0x44, 0x88, 0x6c, 0x0d, 0x84, 0xd7, 0x9c, 0x7a, 0x3d, 0xe3,
+//         0x94, 0x0c, 0x32, 0xb7, 0xd0, 0xda, 0xd4, 0x64, 0xb2, 0x05, 0x2e, 0xb0, 0xba, 0x6e, 0x49, 0x14,
+//     ]).expect("constant initialization")
+// }
+
+// testnet 0xa161a8cb20ba6b79e86f297d5c5c8a44681a521fe08bf352ab5c9401a8a66606 
 fn bondings_curve_code_hash() -> Byte32 {
     Byte32::from_slice(&[
-        0xdf, 0x00, 0xd4, 0xdd, 0x71, 0x09, 0x44, 0x88, 0x6c, 0x0d, 0x84, 0xd7, 0x9c, 0x7a, 0x3d, 0xe3,
-        0x94, 0x0c, 0x32, 0xb7, 0xd0, 0xda, 0xd4, 0x64, 0xb2, 0x05, 0x2e, 0xb0, 0xba, 0x6e, 0x49, 0x14,
+        0xa1, 0x61, 0xa8, 0xcb, 0x20, 0xba, 0x6b, 0x79, 0xe8, 0x6f, 0x29, 0x7d, 0x5c, 0x5c, 0x8a, 0x44, 0x68, 0x1a, 0x52, 0x1f, 0xe0, 0x8b, 0xf3, 0x52, 0xab, 0x5c, 0x94, 0x01, 0xa8, 0xa6, 0x66, 0x06,
     ]).expect("constant initialization")
 }
 
@@ -129,7 +143,7 @@ fn collect_bondings_curve_xudt_amount(type_id: &Bytes,xudt_args: &Bytes,source:S
             let amount = u128::from_le_bytes(buf);
             let cell = load_cell(i, source)?;
             let lock_code_hash = cell.lock().code_hash();
-            // args: xudt_args | type_id
+            // args：xudt_args(32) | type id(32)
             if lock_code_hash != bondings_curve_code_hash() || type_id[..] != cell.lock().args().raw_data()[32..] {
                 // //debug!("cell_lock_hash: {}, script.code_hash(): {}", cell_lock_hash, script.code_hash());
                 // //debug!("args: {}, cell.lock().args().raw_data(): {}", hex_string(args.as_ref()), hex_string(cell.lock().args().raw_data().as_ref()));
@@ -159,7 +173,7 @@ fn collect_bondings_curve_ckb_amount(type_id: &Bytes,source:Source) -> Result<u6
         // //debug!("{} cell: {}", source, cell);
         let lock_code_hash = cell.lock().code_hash();
         let type_hash = cell.type_();
-        // args: xudt_args | type_id
+        // args：xudt_args(32) | type id(32)
         if lock_code_hash != bondings_curve_code_hash() || type_id[..] != cell.lock().args().raw_data()[32..]  {
             // //debug!("{} lock_hash: {}, script.code_hash(): {}",source,lock_hash, script.code_hash());
             // //debug!("{} args: {}, cell.lock().args().raw_data(): {}",source, hex_string(args.as_ref()), hex_string(cell.lock().args().raw_data().as_ref()));
@@ -182,8 +196,8 @@ fn collect_bondings_curve_ckb_amount(type_id: &Bytes,source:Source) -> Result<u6
 
 pub fn main() -> Result<(), Error> {
     // Load the type script of the current cell
-    let type_id = load_id_from_args(32)?;
     let xudt_args = load_xudt_args_from_args(0)?;
+    let type_id = load_id_from_args(32)?;
     let type_id_bytes = Bytes::from(type_id.to_vec());
     let xudt_args_bytes = Bytes::from(xudt_args.to_vec());
     validate_type_id(type_id)?;
@@ -191,6 +205,7 @@ pub fn main() -> Result<(), Error> {
     let bondings_curve_xudt_amount = collect_bondings_curve_xudt_amount(&type_id_bytes,&xudt_args_bytes,Source::Input)?;
     let bondings_curve_ckb_amount = collect_bondings_curve_ckb_amount(&ckb_args(),Source::Input)?;
     let mut  should_check_output_liquidity_change = false;
+    // 购买逻辑
     if bondings_curve_xudt_amount > 0 && bondings_curve_ckb_amount > 0 {
         should_check_output_liquidity_change = true;
         // load unique cell data

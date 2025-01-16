@@ -8,7 +8,7 @@ pub enum Error {
     LengthNotEnough,
     OutputInvalid,
     Encoding,
-    NotADMIN,
+    MissMatchBondingsCell,
     InvalidArgs
 }
 
