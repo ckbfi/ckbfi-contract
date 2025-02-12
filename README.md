@@ -49,6 +49,175 @@ On CKBFI, when users engage in swap transactions, it primarily involves the foll
 
 
 
+#### Technical Implementation
+
+* Buy
+
+```
+
+Transaction {
+    cell_deps: [
+        // ⭐ 必须包含的合约脚本
+        CellDep { 
+            out_point: bondings_curve_script.out_point,  // bondings_curve_script部署位置
+            dep_type: "code"
+        },
+        CellDep { 
+            out_point: order_script.out_point,  // order_script部署位置
+            dep_type: "code"
+        },
+        CellDep { 
+            out_point: unique_manager_liquidity_script.out_point,  // unique_manager_liquidity_script部署位置
+            dep_type: "code"
+        },
+        CellDep { 
+            out_point: xudt_script.out_point,  // xudt_script部署位置
+            dep_type: "code"
+        },
+    ],
+    inputs: [
+    		bondings_curve_pool_xudt_liquidity_cell,
+    		bondings_curve_pool_ckb_liquidity_cell,
+    		order_cell,
+    		unique_manager_liquidity_cell
+    		...(transaction fee)
+    ]
+    outputs: [
+    		// bondings_curve_pool_xudt_liquidity_cell
+        Output {
+            lock: Script { 
+                code_hash: bondings_curve_script_code_hash,     
+                args: xudt_args |  type_id  
+            },
+            type: Script { 
+                code_hash: xudt_script_code_hahs, 
+                args: xudt_args         
+            },
+            data: encode(output_xudt_liquidity_xudt_amount)
+        },
+        // bondings_curve_ckb_xudt_liquidity_cell
+        Output {
+            lock: Script { 
+                code_hash: bondings_curve_script_code_hash,     
+                args: xudt_args |  typeId  
+            },
+            capacity:output_ckb_liquidity_capacity,
+            data: 0x
+        },
+        // to_user_xudt_cell
+        Output {
+            lock: Script { 
+                code_hash: user_lock_code_hash,     
+                args: user_lock_args 
+            },
+            type: Script { 
+                code_hash: xudt_script_code_hahs,
+                args: xudtArgs         
+            },
+            data: encode(to_user_xudt_amount)
+        },
+        // unique_manager_liquidity_cell
+        Output {
+            lock: Script { 
+                code_hash: unique_manager_liquidity_script_code_hash,     
+                args: type_id 
+            },
+            type: Script { 
+                code_hash: unique_manager_liquidity_script_code_hash,
+                args: type_id         
+            },
+            data: encode(output_xudt_liquidity_xudt_amount | output_ckb_liquidity_capacity)
+        },
+        // ...
+        (transaction fee)
+    ]
+}
+
+```
+
+* Sell
+
+```
+
+Transaction {
+    cell_deps: [
+        // ⭐ 必须包含的合约脚本
+        CellDep { 
+            out_point: bondings_curve_script.out_point,  // bondings_curve_script部署位置
+            dep_type: "code"
+        },
+        CellDep { 
+            out_point: order_script.out_point,  // order_script部署位置
+            dep_type: "code"
+        },
+        CellDep { 
+            out_point: unique_manager_liquidity_script.out_point,  // unique_manager_liquidity_script部署位置
+            dep_type: "code"
+        },
+        CellDep { 
+            out_point: xudt_script.out_point,  // xudt_script部署位置
+            dep_type: "code"
+        },
+    ],
+    inputs: [
+    		bondings_curve_pool_xudt_liquidity_cell,
+    		bondings_curve_pool_ckb_liquidity_cell,
+    		order_cell,
+    		unique_manager_liquidity_cell
+    		...(transaction fee)
+    ]
+    outputs: [
+    		// bondings_curve_pool_xudt_liquidity_cell
+        Output {
+            lock: Script { 
+                code_hash: bondings_curve_script_code_hash,     
+                args: xudt_args |  type_id  
+            },
+            type: Script { 
+                code_hash: xudt_script_code_hahs, 
+                args: xudt_args         
+            },
+            data: encode(output_xudt_liquidity_xudt_amount)
+        },
+        // bondings_curve_ckb_xudt_liquidity_cell
+        Output {
+            lock: Script { 
+                code_hash: bondings_curve_script_code_hash,     
+                args: xudt_args |  typeId  
+            },
+            capacity:output_ckb_liquidity_capacity
+            data: 0x
+        },
+        // to_user_ckb_cell
+        Output {
+            lock: Script { 
+                code_hash: user_lock_code_hash,     
+                args: user_lock_args 
+            },
+            capacity: to_user_ckb_amount
+            data: 0x
+        },
+        // unique_manager_liquidity_cell
+        Output {
+            lock: Script { 
+                code_hash: unique_manager_liquidity_script_code_hash,     
+                args: type_id 
+            },
+            type: Script { 
+                code_hash: unique_manager_liquidity_script_code_hash,
+                args: type_id         
+            },
+            data: encode(output_xudt_liquidity_xudt_amount | output_ckb_liquidity_capacity)
+        },
+        // ...
+        (transaction fee)
+    ]
+}
+
+```
+
+
+
 
 
 #### Order Construction
@@ -66,6 +235,11 @@ Bonding Curve Cell: This cell manages the buying, selling, and pricing of tokens
 Unique Cell: This cell manages the liquidity aspect of the AMM. It ensures that there is sufficient liquidity for token swaps.
 
 
+
+## Project Compilation
+```bash
+make build
+```
 
 ## License
 

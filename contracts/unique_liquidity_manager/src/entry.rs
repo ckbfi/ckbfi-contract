@@ -1,4 +1,4 @@
-use core::{any::Any, u128};
+use core::u128;
 
 // Import heap related library from `alloc`
 // https://doc.rust-lang.org/alloc/index.html
@@ -9,7 +9,7 @@ use core::{any::Any, u128};
 // https://docs.rs/ckb-std/
 use ckb_std::{
     ckb_constants::Source, 
-    ckb_types::{bytes::Bytes, packed::{Byte32}, prelude::*},
+    ckb_types::{bytes::Bytes, packed::Byte32, prelude::*},
     error::SysError, 
     high_level::{load_cell, load_cell_data, load_cell_capacity,load_cell_type_hash, load_input, load_script, load_script_hash, QueryIter}
 };

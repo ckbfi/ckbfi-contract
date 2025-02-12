@@ -9,8 +9,8 @@ use core::u128;
 // https://docs.rs/ckb-std/
 use ckb_std::{
     ckb_constants::Source,
-    ckb_types::{bytes::{self, Bytes}, packed::{Byte32}, prelude::*},
-    high_level::{load_cell, load_cell_capacity, load_cell_data, load_cell_lock_hash, load_script,QueryIter},
+    ckb_types::{bytes::Bytes, packed::Byte32, prelude::*},
+    high_level::{load_cell, load_cell_data, load_cell_lock_hash, load_script,QueryIter},
 };
 
 use crate::error::Error;
@@ -32,11 +32,11 @@ fn xudt_code_hash() -> Byte32 {
 
 
 
-fn ckb_args() -> Bytes {
-    let mut buf = [0u8; 32];
-    buf.copy_from_slice(&[0u8; 32]);
-    Bytes::from(buf.to_vec())
-}
+// fn ckb_args() -> Bytes {
+//     let mut buf = [0u8; 32];
+//     buf.copy_from_slice(&[0u8; 32]);
+//     Bytes::from(buf.to_vec())
+// }
 
 
 const UDT_LEN: usize = 16;
@@ -94,7 +94,6 @@ fn collect_xudt_amount_for_user(xudt_args: &Bytes,user_lock_hash :&Bytes) -> Res
     let mut total_amount = 0u128;
     
     //debug!("ckb_args: {}", hex_string(ckb_args().as_ref()));
-    let ckb_flag = *xudt_args == ckb_args();
     //debug!("ckb_flag: {}", ckb_flag);
     
     //debug!("load_cell_count(Source::Output): {}", QueryIter::new(load_cell_data, Source::Output).count());
@@ -110,13 +109,8 @@ fn collect_xudt_amount_for_user(xudt_args: &Bytes,user_lock_hash :&Bytes) -> Res
             continue;
         }
         let cell_type_hash_opt = cell.type_().to_opt();
-        // 如果是ckb，统计capicity
-        if ckb_flag && cell_type_hash_opt.is_none() {
-            // ////debug!("cell_type_hash_opt is none");
-            let capacity = load_cell_capacity(i, Source::Output)?;
-            //debug!("{}:capacity: {}", i,capacity);
-            total_amount += u128::from(capacity);
-        }else if !ckb_flag && data.len() == UDT_LEN && cell_type_hash_opt.is_some() {
+        // 统计给予用户的xudt amount
+        if  data.len() == UDT_LEN && cell_type_hash_opt.is_some() {
             
             buf.copy_from_slice(&data);
             let amount = u128::from_le_bytes(buf);
