@@ -49,7 +49,7 @@ On CKBFI, when users engage in swap transactions, it primarily involves the foll
 
 
 
-#### Technical Implementation
+#### Transaction Structure
 
 * Buy
 
@@ -120,11 +120,11 @@ Transaction {
         Output {
             lock: Script { 
                 code_hash: unique_manager_liquidity_script_code_hash,     
-                args: type_id 
+                args: xudt_args | type_id  
             },
             type: Script { 
                 code_hash: unique_manager_liquidity_script_code_hash,
-                args: type_id         
+                args: xudt_args | type_id          
             },
             data: encode(output_xudt_liquidity_xudt_amount | output_ckb_liquidity_capacity)
         },
@@ -201,11 +201,11 @@ Transaction {
         Output {
             lock: Script { 
                 code_hash: unique_manager_liquidity_script_code_hash,     
-                args: type_id 
+                args: xudt_args | type_id  
             },
             type: Script { 
                 code_hash: unique_manager_liquidity_script_code_hash,
-                args: type_id         
+                args: xudt_args | type_id         
             },
             data: encode(output_xudt_liquidity_xudt_amount | output_ckb_liquidity_capacity)
         },
