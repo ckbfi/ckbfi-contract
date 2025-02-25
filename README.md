@@ -358,14 +358,122 @@ Unique Cell: This cell manages the liquidity aspect of the AMM. It ensures that 
 
 
 
-## Project Compilation
+## Project Compilation And Deploy
+
+### 1.**Compilation**
+
 ```bash
 make build
 ```
 
+然后在./build/release文件夹下会出现order-contract、bondings-curve-contract、unqiue_liquidity_manager的二进制文件
+
+
+
+### 2.Deploy
+
+* 安装部署工具cell-cli
+* 部署order-contract合约
+* 部署bondings-curve-contract合约
+* 部署unqiue_liquidity_manager合约
+* 升级bondings-curve-contract合约
+
+
+
+#### 安装部署工具cell-cli
+
+cell-cli is a shell wrapper of [`ckb-cli`](https://github.com/nervosnetwork/ckb-cli) with features for Cell Script.
+
+```
+git clone git@github.com:cell-labs/cell-cli.git
+## Enter your CKB private key in cell.config.js
+npm install
+npm install -g .
+// deploy
+// cell-cli deploy contract-binary-file
+```
+
+
+
+#### 部署order-contract合约
+
+将Compilation步骤中生成的order-contract复制到cell-cli文件夹，执行
+
+```
+cell-cli deploy order-contract
+```
+
+
+
+#### 部署bondings-curve-contract合约
+
+将Compilation步骤中生成的bondings-curve-contract复制到cell-cli文件夹，执行
+
+```
+cell-cli deploy bondings-curve-contract
+```
+
+
+
+#### 部署unqiue_liquidity_manager合约
+
+* 修改unique_liquidity_manager合约代码中的bondings_curve_code_hash为bondings-curve-contract部署后的code hash,再执行编译
+
+```
+make build
+```
+
+
+
+* 将生成的unqiue_liquidity_manager复制到cell-cli文件夹，执行
+
+```
+cell-cli deploy unqiue_liquidity_manager
+```
+
+
+
+
+
+#### 升级bondings-curve-contract合约
+
+* 修改bondings-curve-contract合约代码中的unique_liquidity_manager_code_hash为order-contract部署后的code hash,再执行编译
+
+```
+make build
+```
+
+* 将生成的bondings-curve-contract二进制文件进行进行升级部署
+
+```
+// 引用部署bondings-curve-contract合约中部署的bondings_curve_script_cell，仅需更换data即可
+Transaction {
+    cell_deps: [
+        // ⭐ 必须包含的合约脚本
+        CellDep { 
+            out_point: type_id.out_point,  // bondings_curve_script部署位置
+            dep_type: "code"
+        },
+    ],
+    inputs: [
+    		bondings_curve_script_cell,
+    ]
+    outputs: [
+    		// bondings_curve_script_cell
+        Output {
+            lock: bondings_curve_script_cell.lock,
+            type: bondings_curve_script_cell.type,
+            data: new_bondings_curve_contract_binary_file_data
+        },
+    ]
+}
+
+```
+
+
+
+
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-
-
