@@ -13,6 +13,6 @@ members = [
 
 [profile.release]
 overflow-checks = true
-strip = false
+strip = true
 codegen-units = 1
 debug = true
