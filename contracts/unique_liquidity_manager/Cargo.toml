@@ -5,7 +5,7 @@ edition = "2021"
 
 [dependencies]
 ckb-std = "0.16.3"
-ckb-hash = "0.120.0"
+ckb-hash = { version = "0.120.0", default-features = false, features = ["ckb-contract"] }
 
 [features]
 native-simulator = ["ckb-std/native-simulator"]
