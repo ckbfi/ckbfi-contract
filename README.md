@@ -437,7 +437,7 @@ cell-cli deploy unqiue_liquidity_manager
 
 #### 升级bondings-curve-contract合约
 
-* 修改bondings-curve-contract合约代码中的unique_liquidity_manager_code_hash为order-contract部署后的code hash,再执行编译
+* 修改bondings-curve-contract合约代码中的unique_liquidity_manager_code_hash为unqiue_liquidity_manager部署后的code hash,再执行编译
 
 ```
 make build
